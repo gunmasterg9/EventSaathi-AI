@@ -19,6 +19,7 @@ export const BudgetPlanner: React.FC = () => {
 
   const [budget, setBudget] = useState<BudgetSummary | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Add / Edit Item Modal
   const [modalOpen, setModalOpen] = useState<boolean>(false);
