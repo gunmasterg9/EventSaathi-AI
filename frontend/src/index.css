@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Custom celebratory gradient & utility helpers */
+.bg-celebration-gradient {
+  background: linear-gradient(135deg, #881337 0%, #be123c 50%, #d97706 100%);
+}
+
+.bg-festive-card {
+  background: radial-gradient(circle at top right, rgba(254, 205, 211, 0.25), transparent 70%), #ffffff;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
