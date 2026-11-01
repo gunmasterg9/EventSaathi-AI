@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from .common import InputModel, PatchModel
 
-class VendorBase(BaseModel):
+class VendorBase(InputModel):
     category: str = Field(..., min_length=1, max_length=100, description="Vendor category (e.g. Venue, Catering, Decoration)")
     name: str = Field(..., min_length=1, max_length=200, description="Vendor or business name")
     contact_person: Optional[str] = Field(default=None, max_length=150, description="Contact person name")
@@ -10,14 +11,15 @@ class VendorBase(BaseModel):
     email: Optional[str] = Field(default=None, max_length=150, description="Contact email")
     estimated_quote: float = Field(default=0.0, ge=0.0, description="Estimated or initial quote")
     actual_quote: float = Field(default=0.0, ge=0.0, description="Agreed or final quote")
-    status: str = Field(default="not_contacted", description="not_contacted, contacted, quoted, booked, rejected")
+    status: Literal["not_contacted", "contacted", "quoted", "booked", "rejected"] = "not_contacted"
     notes: Optional[str] = Field(default=None, max_length=2000, description="Deliverables, package details, notes")
     selection_criteria: Optional[str] = Field(default=None, max_length=1000, description="Key criteria (e.g., taste test passed, guest capacity 100+)")
 
 class VendorCreate(VendorBase):
     pass
 
-class VendorUpdate(BaseModel):
+class VendorUpdate(PatchModel):
+    required_fields = {"category", "name", "estimated_quote", "actual_quote", "status"}
     category: Optional[str] = Field(None, min_length=1, max_length=100)
     name: Optional[str] = Field(None, min_length=1, max_length=200)
     contact_person: Optional[str] = Field(None, max_length=150)
@@ -25,7 +27,7 @@ class VendorUpdate(BaseModel):
     email: Optional[str] = Field(None, max_length=150)
     estimated_quote: Optional[float] = Field(None, ge=0.0)
     actual_quote: Optional[float] = Field(None, ge=0.0)
-    status: Optional[str] = None
+    status: Optional[Literal["not_contacted", "contacted", "quoted", "booked", "rejected"]] = None
     notes: Optional[str] = Field(None, max_length=2000)
     selection_criteria: Optional[str] = Field(None, max_length=1000)
 

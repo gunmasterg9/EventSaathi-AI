@@ -1,39 +1,41 @@
-from typing import List, Optional
+from typing import List, Optional, Literal
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from .common import InputModel, PatchModel
 
-class EventBase(BaseModel):
+class EventBase(InputModel):
     name: str = Field(..., min_length=2, max_length=200, description="Name of the celebration or event")
-    event_type: str = Field(default="wedding", description="wedding, birthday, community, or other")
+    event_type: Literal["wedding", "birthday", "community", "other"] = "wedding"
     date: Optional[str] = Field(default=None, description="Event date or relative timeframe")
     city: str = Field(default="Ahmedabad", min_length=1, max_length=100, description="City / Location")
-    venue_status: str = Field(default="not_booked", description="not_booked, shortlisted, or booked")
+    venue_status: Literal["not_booked", "shortlisted", "booked"] = "not_booked"
     guest_count: int = Field(default=50, ge=1, le=100000, description="Expected guest count")
     total_budget: float = Field(default=50000.0, ge=0.0, description="Total budget in selected currency")
     currency: str = Field(default="INR", max_length=10, description="Currency code (e.g. INR)")
-    language: str = Field(default="en", description="Planning language: en, hi, or gu")
+    language: Literal["en", "hi", "gu"] = "en"
     theme_preference: Optional[str] = Field(default=None, max_length=200, description="Theme or aesthetic style")
     dietary_requirements: Optional[str] = Field(default=None, max_length=300, description="Dietary and accessibility details")
-    indoor_outdoor: str = Field(default="flexible", description="indoor, outdoor, both, or flexible")
+    indoor_outdoor: Literal["indoor", "outdoor", "both", "flexible"] = "flexible"
     additional_notes: Optional[str] = Field(default=None, max_length=2000, description="Additional context or traditions")
 
 class EventCreate(EventBase):
     pass
 
-class EventUpdate(BaseModel):
+class EventUpdate(PatchModel):
+    required_fields = {"name", "event_type", "city", "venue_status", "guest_count", "total_budget", "currency", "language", "indoor_outdoor"}
     name: Optional[str] = Field(None, min_length=2, max_length=200)
-    event_type: Optional[str] = None
+    event_type: Optional[Literal["wedding", "birthday", "community", "other"]] = None
     date: Optional[str] = None
-    city: Optional[str] = None
-    venue_status: Optional[str] = None
+    city: Optional[str] = Field(None, min_length=1, max_length=100)
+    venue_status: Optional[Literal["not_booked", "shortlisted", "booked"]] = None
     guest_count: Optional[int] = Field(None, ge=1, le=100000)
     total_budget: Optional[float] = Field(None, ge=0.0)
-    currency: Optional[str] = None
-    language: Optional[str] = None
-    theme_preference: Optional[str] = None
-    dietary_requirements: Optional[str] = None
-    indoor_outdoor: Optional[str] = None
-    additional_notes: Optional[str] = None
+    currency: Optional[str] = Field(None, min_length=1, max_length=10)
+    language: Optional[Literal["en", "hi", "gu"]] = None
+    theme_preference: Optional[str] = Field(None, max_length=200)
+    dietary_requirements: Optional[str] = Field(None, max_length=300)
+    indoor_outdoor: Optional[Literal["indoor", "outdoor", "both", "flexible"]] = None
+    additional_notes: Optional[str] = Field(None, max_length=2000)
 
 class EventListItem(BaseModel):
     id: str

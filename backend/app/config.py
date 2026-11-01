@@ -1,5 +1,5 @@
 import os
-from typing import List
+from typing import List, Literal
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
@@ -16,6 +16,10 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./eventsaathi.db"
     
     # AI Provider configuration
+    AI_PROVIDER: Literal["gemini", "ollama"] = "gemini"
+    OLLAMA_BASE_URL: str = "http://127.0.0.1:11434"
+    OLLAMA_MODEL: str = "qwen3-coder:30b"
+    OLLAMA_TIMEOUT_SECONDS: int = 180
     GEMINI_API_KEY: str = ""
     GEMINI_MODEL: str = "gemini-1.5-flash"
     AI_TIMEOUT_SECONDS: int = 15

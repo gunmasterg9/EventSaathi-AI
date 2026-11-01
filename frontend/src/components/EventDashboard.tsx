@@ -15,13 +15,16 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useEvent } from '../context/EventContext';
+import { UpcomingTasks } from './UpcomingTasks';
+import { guestLabels } from '../i18n/guests';
 
 interface EventDashboardProps {
   onNavigateTab: (tab: string) => void;
+  onEditEvent: () => void;
 }
 
-export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab }) => {
-  const { t } = useLanguage();
+export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab, onEditEvent }) => {
+  const { t, language } = useLanguage();
   const { currentEvent, generatePlan, generatingPlan } = useEvent();
 
   if (!currentEvent) {
@@ -50,12 +53,12 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab })
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
                   <span>{t.fallbackBadge}</span>
                 </span>
-              ) : (
+              ) : currentEvent.plan_source === 'gemini_ai' || currentEvent.plan_source === 'ollama_ai' ? (
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>{t.aiBadge}</span>
+                  <span>{currentEvent.plan_source === 'ollama_ai' ? 'Local AI · Ollama' : t.aiBadge}</span>
                 </span>
-              )}
+              ) : <span className="text-xs text-rose-200">{t.noPlanYet}</span>}
             </div>
 
             <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
@@ -80,7 +83,10 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab })
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button onClick={onEditEvent} disabled={generatingPlan} className="px-4 py-2.5 rounded-xl bg-white text-brand-900 font-semibold text-xs sm:text-sm disabled:opacity-50">
+              {{ en: 'Edit event', hi: 'इवेंट बदलें', gu: 'ઇવેન્ટ બદલો' }[language]}
+            </button>
             <button
               onClick={() => generatePlan(currentEvent.id)}
               disabled={generatingPlan}
@@ -188,6 +194,12 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab })
           </div>
         </div>
       </div>
+
+      <UpcomingTasks key={currentEvent.id} eventId={currentEvent.id} revision={currentEvent.updated_at} onOpen={() => onNavigateTab('timeline')} />
+      <button onClick={() => onNavigateTab('guests')} className="w-full rounded-2xl border border-rose-200 bg-rose-50 p-5 text-left hover:bg-rose-100 transition-colors">
+        <span className="block font-bold text-rose-900">{guestLabels[language].title} →</span>
+        <span className="block mt-1 text-sm text-rose-800">{guestLabels[language].subtitle}</span>
+      </button>
 
       {/* Quick Action Workspace Cards */}
       <div className="space-y-4">

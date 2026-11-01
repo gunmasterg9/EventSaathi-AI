@@ -2,6 +2,141 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Keep every dialog inside the visible viewport, including short landscape
+   screens and mobile browsers with expanding address bars/keyboards. */
+.dialog-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(0.75rem, env(safe-area-inset-top))
+    max(0.75rem, env(safe-area-inset-right))
+    max(0.75rem, env(safe-area-inset-bottom))
+    max(0.75rem, env(safe-area-inset-left));
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+/* Lock background scrolling while any dialog is open. Only its content scrolls. */
+body:has(.dialog-overlay) {
+  overflow: hidden;
+}
+
+.wizard-form textarea {
+  min-height: 7.5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.wizard-actions {
+  position: sticky;
+  bottom: -1px;
+  background: white;
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  z-index: 1;
+}
+
+.dialog-overlay > div {
+  min-width: 0;
+  flex-shrink: 0;
+  max-height: calc(100vh - 1.5rem);
+  max-height: calc(100dvh - max(0.75rem, env(safe-area-inset-top)) - max(0.75rem, env(safe-area-inset-bottom)));
+  overflow-y: auto;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+
+.dialog-overlay input,
+.dialog-overlay select,
+.dialog-overlay textarea {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The outer shell clips native scrollbars at the rounded corners. Scrolling
+   belongs to the inner region so it cannot square off the modal's border. */
+.dialog-overlay > .wizard-shell,
+.dialog-overlay > .dialog-shell {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialog-scroll {
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 transparent;
+}
+
+.dialog-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.dialog-scroll::-webkit-scrollbar-track {
+  background: transparent;
+  margin-block: 1.5rem;
+}
+
+.dialog-scroll::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 999px;
+}
+
+@media (max-width: 639px) {
+  main {
+    overflow-wrap: anywhere;
+  }
+
+  main .grid > * {
+    min-width: 0;
+  }
+
+  .chat-launcher {
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .dialog-overlay {
+    padding: max(0.5rem, env(safe-area-inset-top)) max(0.5rem, env(safe-area-inset-right)) max(0.5rem, env(safe-area-inset-bottom)) max(0.5rem, env(safe-area-inset-left));
+  }
+
+  .dialog-overlay > div {
+    max-height: calc(100vh - 1rem);
+    max-height: calc(100dvh - max(0.5rem, env(safe-area-inset-top)) - max(0.5rem, env(safe-area-inset-bottom)));
+    border-radius: 1.25rem;
+  }
+
+  .wizard-form label {
+    font-size: 0.875rem;
+    line-height: 1.45;
+    letter-spacing: normal;
+    text-transform: none;
+    font-weight: 600;
+  }
+
+  .wizard-header h2 {
+    font-size: 1.25rem;
+    line-height: 1.3;
+    padding-right: 1.5rem;
+  }
+
+  .wizard-form input:not([type="checkbox"]),
+  .wizard-form select {
+    min-height: 48px;
+  }
+
+  .dialog-scroll {
+    scrollbar-width: thin;
+  }
+
+  /* Prevent iOS from zooming and shifting the dialog when a field is focused. */
+  .dialog-overlay input,
+  .dialog-overlay select,
+  .dialog-overlay textarea {
+    font-size: 16px;
+  }
+}
+
 @layer base {
   html {
     scroll-behavior: smooth;

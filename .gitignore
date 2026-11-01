@@ -53,6 +53,7 @@ lerna-debug.log*
 backend/*.db
 
 # IDE & OS
+.runtime/
 .vscode/
 .idea/
 *.swp

@@ -1,3 +1,4 @@
+import { DialogPanel } from './DialogPanel';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   PlusCircle,
@@ -309,8 +310,8 @@ export const TimelineView: React.FC = () => {
 
       {/* Add / Edit Task Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 space-y-5 animate-in fade-in zoom-in-95">
+        <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
+          <DialogPanel className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95" contentClassName="p-6 space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-extrabold text-slate-900 text-base">
                 {editingTask ? 'Edit Task' : t.addTaskBtn}
@@ -397,7 +398,7 @@ export const TimelineView: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </DialogPanel>
         </div>
       )}
     </div>

@@ -92,7 +92,9 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       } else if (list.length > 0) {
         selectEvent(list[0].id);
       }
-    }).catch(() => {});
+    }).catch((err: unknown) => {
+      setError(err instanceof Error ? err.message : 'Unable to load saved celebrations. Check the backend connection.');
+    });
   }, [fetchHealth, selectEvent]);
 
   const createEvent = async (input: EventCreateInput): Promise<EventItem> => {
@@ -183,7 +185,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setError(null);
     try {
       // Check if a demo birthday event already exists
-      const existing = events.find((e) => e.name.includes("Ahmedabad 30th Birthday Celebration"));
+      const existing = events.find((e) => e.name === "Aarav's 30th Birthday Celebration");
       if (existing) {
         await selectEvent(existing.id);
         return;
@@ -193,7 +195,7 @@ export const EventProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const demoInput: EventCreateInput = {
         name: "Aarav's 30th Birthday Celebration",
         event_type: "birthday",
-        date: "2026-11-20",
+        date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
         city: "Ahmedabad, Gujarat",
         venue_status: "shortlisted",
         guest_count: 50,

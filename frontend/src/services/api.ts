@@ -9,11 +9,39 @@ import {
   VendorsListResponse,
   VendorRecord,
   HealthStatus,
+  GuestInput, GuestRecord, GuestSummary,
+  ServiceBundle, FeedbackInput, FeedbackRecord, FeedbackSummary,
+  ChatMessage, ChatResponse, Language,
 } from '../types';
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 class ApiService {
+  chat(messages: ChatMessage[], language: Language): Promise<ChatResponse> {
+    return this.request('/api/chat', { method: 'POST', body: JSON.stringify({ messages, language }) });
+  }
+  addServiceChecklist(eventId: string, bundle: ServiceBundle): Promise<{ added: number }> {
+    return this.request(`/api/events/${eventId}/service-checklists`, { method: 'POST', body: JSON.stringify({ bundle }) });
+  }
+  getFeedback(eventId: string): Promise<FeedbackSummary> { return this.request(`/api/events/${eventId}/feedback`); }
+  addFeedback(eventId: string, input: FeedbackInput): Promise<FeedbackRecord> {
+    return this.request(`/api/events/${eventId}/feedback`, { method: 'POST', body: JSON.stringify(input) });
+  }
+  deleteFeedback(eventId: string, id: string): Promise<void> { return this.request(`/api/events/${eventId}/feedback/${id}`, { method: 'DELETE' }); }
+  getGuests(eventId: string): Promise<GuestSummary> {
+    return this.request(`/api/events/${eventId}/guests`);
+  }
+  addGuest(eventId: string, input: GuestInput): Promise<GuestRecord> {
+    return this.request(`/api/events/${eventId}/guests`, { method: 'POST', body: JSON.stringify(input) });
+  }
+  updateGuest(eventId: string, guestId: string, input: Partial<GuestInput>): Promise<GuestRecord> {
+    return this.request(`/api/events/${eventId}/guests/${guestId}`, { method: 'PATCH', body: JSON.stringify(input) });
+  }
+  deleteGuest(eventId: string, guestId: string): Promise<void> {
+    return this.request(`/api/events/${eventId}/guests/${guestId}`, { method: 'DELETE' });
+  }
+  getGuestsExportUrl(eventId: string): string { return `${API_BASE}/api/events/${eventId}/guests/export-csv`; }
+
   private async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const url = `${API_BASE}${endpoint}`;
     const headers = {
@@ -91,6 +119,10 @@ class ApiService {
   }
 
   // Budget
+  getEventExportUrl(eventId: string): string {
+    return `${API_BASE}/api/events/${eventId}/export-json`;
+  }
+
   async getBudget(eventId: string): Promise<BudgetSummary> {
     return this.request<BudgetSummary>(`/api/events/${eventId}/budget`);
   }

@@ -15,7 +15,7 @@ class AIPlannerService:
         self.timeout = settings.AI_TIMEOUT_SECONDS
 
     def is_configured(self) -> bool:
-        return settings.has_ai_credentials
+        return settings.AI_PROVIDER == "ollama" or settings.has_ai_credentials
 
     async def generate_plan(
         self,
@@ -145,8 +145,22 @@ Return a single JSON object with EXACTLY this structure:
             }
         }
 
+        using_ollama = settings.AI_PROVIDER == "ollama"
+        if using_ollama:
+            api_url = settings.OLLAMA_BASE_URL.rstrip('/') + '/api/chat'
+            request_body = {
+                "model": settings.OLLAMA_MODEL,
+                "stream": False,
+                "format": AIPlanGenerated.model_json_schema(),
+                "messages": [
+                    {"role": "system", "content": system_instruction},
+                    {"role": "user", "content": user_prompt},
+                ],
+                "options": {"temperature": 0.4, "num_predict": 4096},
+            }
+
         try:
-            async with httpx.AsyncClient(timeout=self.timeout) as client:
+            async with httpx.AsyncClient(timeout=settings.OLLAMA_TIMEOUT_SECONDS if using_ollama else self.timeout) as client:
                 response = await client.post(
                     api_url,
                     json=request_body,
@@ -154,7 +168,7 @@ Return a single JSON object with EXACTLY this structure:
                 )
 
             if response.status_code != 200:
-                logger.warning(f"Gemini API responded with status {response.status_code}. Using fallback.")
+                logger.warning(f"AI provider responded with status {response.status_code}. Using fallback.")
                 return generate_fallback_plan(
                     event_type=event_type,
                     name=name,
@@ -168,15 +182,17 @@ Return a single JSON object with EXACTLY this structure:
                     indoor_outdoor=indoor_outdoor,
                     additional_notes=additional_notes or "",
                     event_date=event_date or "",
-                    reason=f"Gemini API returned status {response.status_code}. Deterministic fallback active."
+                    reason=f"AI provider returned status {response.status_code}. Deterministic fallback active."
                 )
 
             data = response.json()
-            candidates = data.get("candidates", [])
-            if not candidates:
-                raise ValueError("No candidates returned by Gemini")
-
-            text_content = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
+            if using_ollama:
+                text_content = data.get("message", {}).get("content", "")
+            else:
+                candidates = data.get("candidates", [])
+                if not candidates:
+                    raise ValueError("No candidates returned by Gemini")
+                text_content = candidates[0].get("content", {}).get("parts", [{}])[0].get("text", "")
             if not text_content:
                 raise ValueError("Empty response text from Gemini")
 
@@ -194,7 +210,7 @@ Return a single JSON object with EXACTLY this structure:
 
             # Validate against Pydantic schema
             plan = AIPlanGenerated.model_validate(parsed_json)
-            plan.plan_source = "gemini_ai"
+            plan.plan_source = "ollama_ai" if using_ollama else "gemini_ai"
             plan.fallback_reason = None
             return plan
 

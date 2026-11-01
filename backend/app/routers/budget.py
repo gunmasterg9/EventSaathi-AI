@@ -1,4 +1,5 @@
 from collections import defaultdict
+from urllib.parse import quote
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlalchemy.orm import Session
@@ -211,7 +212,7 @@ def export_budget_csv(event_id: str, db: Session = Depends(get_db)):
         content=csv_content,
         media_type="text/csv; charset=utf-8",
         headers={
-            "Content-Disposition": f'attachment; filename="{filename}"',
+            "Content-Disposition": f"attachment; filename=\"EventSaathi_Budget.csv\"; filename*=UTF-8''{quote(filename, safe='')}",
             "Cache-Control": "no-cache",
         }
     )

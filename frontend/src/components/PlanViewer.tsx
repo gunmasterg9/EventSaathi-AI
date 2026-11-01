@@ -12,9 +12,10 @@ import {
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useEvent } from '../context/EventContext';
+import { api } from '../services/api';
 
 export const PlanViewer: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { currentEvent, generatePlan, generatingPlan } = useEvent();
 
   if (!currentEvent) return null;
@@ -59,7 +60,7 @@ export const PlanViewer: React.FC = () => {
             ) : (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>AI Powered (Gemini)</span>
+                <span>{currentEvent.plan_source === 'ollama_ai' ? 'Local AI (Ollama)' : 'AI Powered (Gemini)'}</span>
               </span>
             )}
           </div>
@@ -68,6 +69,13 @@ export const PlanViewer: React.FC = () => {
           </p>
         </div>
 
+        <div className="flex flex-wrap gap-2">
+        <a
+          href={api.getEventExportUrl(currentEvent.id)}
+          className="inline-flex items-center px-4 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs sm:text-sm shadow-sm"
+        >
+          {{ en: 'Download event backup', hi: 'इवेंट बैकअप डाउनलोड करें', gu: 'ઇવેન્ટ બેકઅપ ડાઉનલોડ કરો' }[language]}
+        </a>
         <button
           onClick={() => generatePlan(currentEvent.id)}
           disabled={generatingPlan}
@@ -76,6 +84,7 @@ export const PlanViewer: React.FC = () => {
           <RotateCw className={`w-4 h-4 ${generatingPlan ? 'animate-spin' : ''}`} />
           <span>{generatingPlan ? t.regenerating : t.regeneratePlanBtn}</span>
         </button>
+        </div>
       </div>
 
       {/* Summary Banner */}

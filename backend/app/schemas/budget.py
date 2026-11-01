@@ -1,8 +1,9 @@
 from typing import List, Optional
 from datetime import datetime
 from pydantic import BaseModel, Field, ConfigDict
+from .common import InputModel, PatchModel
 
-class BudgetItemBase(BaseModel):
+class BudgetItemBase(InputModel):
     category: str = Field(..., min_length=1, max_length=100, description="Category name (e.g., Venue, Catering, Decoration)")
     item_name: str = Field(..., min_length=1, max_length=200, description="Item or expense description")
     estimated_amount: float = Field(..., ge=0.0, description="Estimated cost (must be non-negative)")
@@ -13,7 +14,8 @@ class BudgetItemBase(BaseModel):
 class BudgetItemCreate(BudgetItemBase):
     pass
 
-class BudgetItemUpdate(BaseModel):
+class BudgetItemUpdate(PatchModel):
+    required_fields = {"category", "item_name", "estimated_amount", "actual_amount", "is_paid"}
     category: Optional[str] = Field(None, min_length=1, max_length=100)
     item_name: Optional[str] = Field(None, min_length=1, max_length=200)
     estimated_amount: Optional[float] = Field(None, ge=0.0)

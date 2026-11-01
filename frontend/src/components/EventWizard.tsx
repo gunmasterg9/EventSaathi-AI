@@ -10,20 +10,29 @@ import {
   IndianRupee,
   Users,
   HelpCircle,
+  LoaderCircle,
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useEvent } from '../context/EventContext';
-import { EventCreateInput, EventType, VenueStatus, IndoorOutdoor, Language } from '../types';
+import { EventCreateInput, EventItem, EventType, VenueStatus, IndoorOutdoor, Language } from '../types';
 
 interface EventWizardProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  editingEvent?: EventItem | null;
+  initialInput?: EventCreateInput | null;
 }
 
-export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuccess }) => {
+export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuccess, editingEvent, initialInput }) => {
   const { language, t } = useLanguage();
-  const { createEvent, generatePlan } = useEvent();
+  const { createEvent, updateEvent, generatePlan } = useEvent();
+  const [refreshPlan, setRefreshPlan] = useState(false);
+  const editLabels = {
+    en: { title: 'Edit event details', save: 'Save changes', refresh: 'Refresh the plan after saving', note: 'Saved expenses, task progress, vendors and guests are kept. Refreshing updates the theme, ideas and schedule; edit individual workspace items in their tabs.' },
+    hi: { title: 'इवेंट विवरण बदलें', save: 'बदलाव सहेजें', refresh: 'सहेजने के बाद योजना अपडेट करें', note: 'खर्च, काम की प्रगति, विक्रेता और मेहमान सुरक्षित रहेंगे। योजना अपडेट करने से थीम, सुझाव और कार्यक्रम बदलेंगे। बाकी बदलाव संबंधित टैब में करें।' },
+    gu: { title: 'ઇવેન્ટની વિગતો બદલો', save: 'ફેરફારો સાચવો', refresh: 'સાચવ્યા પછી યોજના અપડેટ કરો', note: 'ખર્ચ, કામની પ્રગતિ, વિક્રેતાઓ અને મહેમાનો જળવાઈ રહેશે. યોજના અપડેટ કરવાથી થીમ, સૂચનો અને સમયપત્રક બદલાશે. અન્ય ફેરફારો સંબંધિત ટેબમાં કરો.' },
+  }[language];
 
   const [step, setStep] = useState<number>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
@@ -43,6 +52,14 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
     dietary_requirements: '',
     indoor_outdoor: 'flexible',
     additional_notes: '',
+    ...initialInput,
+    ...(editingEvent ? {
+      name: editingEvent.name, event_type: editingEvent.event_type, date: editingEvent.date || '',
+      city: editingEvent.city, venue_status: editingEvent.venue_status, guest_count: editingEvent.guest_count,
+      total_budget: editingEvent.total_budget, currency: editingEvent.currency, language: editingEvent.language,
+      theme_preference: editingEvent.theme_preference || '', dietary_requirements: editingEvent.dietary_requirements || '',
+      indoor_outdoor: editingEvent.indoor_outdoor, additional_notes: editingEvent.additional_notes || '',
+    } : {}),
   });
 
   if (!isOpen) return null;
@@ -84,9 +101,13 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
     setValidationError(null);
     setSubmitting(true);
     try {
-      const created = await createEvent(formData);
-      // Immediately generate plan with AI or fallback
-      await generatePlan(created.id);
+      if (editingEvent) {
+        await updateEvent(editingEvent.id, formData);
+        if (refreshPlan) await generatePlan(editingEvent.id);
+      } else {
+        const created = await createEvent(formData);
+        await generatePlan(created.id);
+      }
       onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -98,15 +119,16 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
       <div
-        className="bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-rose-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95"
+        className="wizard-shell bg-white rounded-3xl max-w-2xl w-full shadow-2xl border border-rose-100 overflow-hidden transform transition-all animate-in fade-in zoom-in-95"
         role="dialog"
         aria-modal="true"
         aria-labelledby="wizard-modal-title"
       >
+        <div className="dialog-scroll">
         {/* Header with Step indicator */}
-        <div className="bg-gradient-to-r from-brand-900 via-rose-800 to-amber-700 text-white p-6 relative">
+        <div className="wizard-header bg-gradient-to-r from-brand-900 via-rose-800 to-amber-700 text-white p-5 sm:p-6 relative">
           <button
             onClick={onClose}
             aria-label="Close dialog"
@@ -120,7 +142,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
               EventSaathi AI Planner
             </span>
             <h2 id="wizard-modal-title" className="text-xl sm:text-2xl font-extrabold tracking-tight">
-              {t.wizardTitle}
+              {editingEvent ? editLabels.title : t.wizardTitle}
             </h2>
             <p className="text-xs sm:text-sm text-rose-100/90 mt-1">
               {t.wizardSubtitle}
@@ -145,7 +167,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6">
+        <form onSubmit={handleSubmit} className="wizard-form p-4 sm:p-8 space-y-6" aria-busy={submitting}>
           {validationError && (
             <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700 flex items-center gap-2">
               <HelpCircle className="w-4 h-4 shrink-0 text-rose-500" />
@@ -235,7 +257,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                   {t.venueStatusLabel}
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2">
                   {[
                     { value: 'not_booked', label: t.venueNotBooked },
                     { value: 'shortlisted', label: t.venueShortlisted },
@@ -309,7 +331,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
                   {t.languageLabel}
                 </label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 min-[400px]:grid-cols-3 gap-2">
                   {[
                     { code: 'en', label: 'English', desc: 'Standard' },
                     { code: 'hi', label: 'हिंदी (Hindi)', desc: 'पारंपरिक' },
@@ -399,7 +421,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
                   {t.notesLabel}
                 </label>
                 <textarea
-                  rows={2}
+                  rows={4}
                   value={formData.additional_notes || ''}
                   onChange={(e) => setFormData({ ...formData, additional_notes: e.target.value })}
                   placeholder={t.notesPlaceholder}
@@ -409,13 +431,21 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
             </div>
           )}
 
+          {editingEvent && step === 3 && <div className="rounded-xl bg-rose-50 border border-rose-100 p-4 space-y-2">
+            <label className="flex items-start gap-2 text-sm font-semibold text-rose-900">
+              <input type="checkbox" checked={refreshPlan} disabled={submitting} onChange={e => setRefreshPlan(e.target.checked)} className="mt-1" />
+              <span>{editLabels.refresh}</span>
+            </label>
+            <p className="text-xs text-slate-600">{editLabels.note}</p>
+          </div>}
           {/* Action Footer */}
-          <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
+          <div className="wizard-actions pt-4 border-t border-slate-100 grid grid-cols-[auto_minmax(0,1fr)] gap-3 items-center">
             {step > 1 ? (
               <button
                 type="button"
+                disabled={submitting}
                 onClick={() => setStep(step - 1)}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold hover:bg-slate-50 transition-colors"
+                className="min-h-12 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition-colors disabled:opacity-60"
               >
                 {t.back}
               </button>
@@ -427,7 +457,7 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-2.5 rounded-xl bg-slate-900 hover:bg-black text-white text-xs font-bold shadow transition-all"
+                className="min-h-12 px-4 py-3 rounded-xl bg-slate-900 hover:bg-black text-white text-sm font-semibold shadow transition-all"
               >
                 {t.next}
               </button>
@@ -435,14 +465,15 @@ export const EventWizard: React.FC<EventWizardProps> = ({ isOpen, onClose, onSuc
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-rose-600 via-brand-600 to-amber-600 hover:from-rose-700 hover:to-amber-700 text-white text-xs sm:text-sm font-bold shadow-md shadow-rose-200 active:scale-95 transition-all disabled:opacity-50 flex items-center gap-2"
+                className="min-h-12 min-w-0 px-4 py-3 rounded-xl bg-brand-700 hover:bg-brand-800 text-white text-sm font-semibold shadow-sm transition-colors disabled:cursor-wait flex items-center justify-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-amber-200 animate-spin" />
-                <span>{submitting ? t.btnCreating : t.btnCreateAndGenerate}</span>
+                {submitting ? <LoaderCircle className="w-4 h-4 shrink-0 animate-spin" aria-hidden="true" /> : <Sparkles className="w-4 h-4 shrink-0" aria-hidden="true" />}
+                <span role={submitting ? 'status' : undefined}>{submitting ? { en: 'Planning…', hi: 'योजना बन रही है…', gu: 'યોજના બની રહી છે…' }[language] : editingEvent ? editLabels.save : t.btnCreateAndGenerate}</span>
               </button>
             )}
           </div>
         </form>
+        </div>
       </div>
     </div>
   );

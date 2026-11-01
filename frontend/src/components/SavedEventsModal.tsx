@@ -1,3 +1,4 @@
+import { DialogPanel } from './DialogPanel';
 import React from 'react';
 import {
   X,
@@ -27,8 +28,8 @@ export const SavedEventsModal: React.FC<SavedEventsModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border border-rose-100 space-y-6 animate-in fade-in zoom-in-95">
+    <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
+      <DialogPanel className="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95" contentClassName="p-6 sm:p-8 space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div>
             <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
@@ -137,7 +138,7 @@ export const SavedEventsModal: React.FC<SavedEventsModalProps> = ({
             {t.close}
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 };

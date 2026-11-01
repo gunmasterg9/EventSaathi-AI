@@ -7,7 +7,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from backend.app.config import settings
 from backend.app.database import engine, Base
-from backend.app.routers import health, events, budget, tasks, vendors
+from backend.app.routers import health, events, budget, tasks, vendors, guests, operations, chat
 
 # Configure application logging (safe, no secrets logged)
 logging.basicConfig(
@@ -69,6 +69,9 @@ app.include_router(events.router)
 app.include_router(budget.router)
 app.include_router(tasks.router)
 app.include_router(vendors.router)
+app.include_router(guests.router)
+app.include_router(operations.router)
+app.include_router(chat.router)
 
 @app.get("/")
 def root():

@@ -1,3 +1,4 @@
+import { DialogPanel } from './DialogPanel';
 import React from 'react';
 import {
   X,
@@ -29,10 +30,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   ];
 
   const hasKey = health?.ai_engine.has_credentials;
+  const isOllama = health?.ai_engine.provider === 'ollama';
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-rose-100 space-y-6 animate-in fade-in zoom-in-95">
+    <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
+      <DialogPanel className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95" contentClassName="p-6 sm:p-8 space-y-6">
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-rose-50 text-brand-600 flex items-center justify-center">
@@ -63,11 +65,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <span>AI Provider Status</span>
             </span>
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-              hasKey
+              (hasKey || isOllama)
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : 'bg-amber-50 text-amber-700 border-amber-200'
             }`}>
-              {hasKey ? 'Gemini API Active' : 'Deterministic Fallback Active'}
+              {isOllama ? 'Ollama selected (local testing)' : hasKey ? 'Gemini configured' : 'Deterministic Fallback Active'}
             </span>
           </div>
 
@@ -149,7 +151,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
             {t.close}
           </button>
         </div>
-      </div>
+      </DialogPanel>
     </div>
   );
 };

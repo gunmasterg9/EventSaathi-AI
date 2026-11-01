@@ -27,8 +27,8 @@ def get_health_status(db: Session = Depends(get_db)):
         "database": db_status,
         "ai_engine": {
             "has_credentials": has_ai,
-            "provider": "google_gemini" if has_ai else "deterministic_rules_engine",
-            "model": settings.GEMINI_MODEL,
+            "provider": "ollama" if settings.AI_PROVIDER == "ollama" else "google_gemini" if has_ai else "deterministic_rules_engine",
+            "model": settings.OLLAMA_MODEL if settings.AI_PROVIDER == "ollama" else settings.GEMINI_MODEL,
             "fallback_ready": True
         }
     }

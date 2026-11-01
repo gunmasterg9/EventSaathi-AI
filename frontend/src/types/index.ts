@@ -1,4 +1,35 @@
 export type Language = 'en' | 'hi' | 'gu';
+export interface ChatMessage { role: 'user' | 'assistant'; content: string }
+export interface ChatResponse {
+  reply: string;
+  source: 'ollama_ai' | 'gemini_ai';
+  model: string;
+  missing_fields: string[];
+  event_input: EventCreateInput | null;
+}
+export type ServiceBundle = 'hospitality' | 'travel' | 'registration' | 'hybrid' | 'coordination';
+export interface FeedbackInput { author: string; rating: number; comment: string }
+export interface FeedbackRecord extends FeedbackInput { id: string; event_id: string; created_at: string }
+export interface FeedbackSummary { entries: FeedbackRecord[]; total: number; average_rating: number | null }
+
+export type RsvpStatus = 'pending' | 'confirmed' | 'declined';
+export interface GuestInput {
+  name: string;
+  phone: string;
+  party_size: number;
+  rsvp_status: RsvpStatus;
+  dietary_requirements: string;
+  notes: string;
+}
+export interface GuestRecord extends GuestInput { id: string; event_id: string }
+export interface GuestSummary {
+  guests: GuestRecord[];
+  invited_people: number;
+  confirmed_people: number;
+  pending_people: number;
+  declined_people: number;
+  planned_capacity: number;
+}
 
 export type EventType = 'wedding' | 'birthday' | 'community' | 'other';
 export type VenueStatus = 'not_booked' | 'shortlisted' | 'booked';
@@ -36,7 +67,7 @@ export interface EventItem {
   guest_experience_ideas: string[];
   prep_steps: string[];
   event_day_schedule: ScheduleItem[];
-  plan_source: 'none' | 'gemini_ai' | 'rules_fallback';
+  plan_source: 'none' | 'gemini_ai' | 'ollama_ai' | 'rules_fallback';
   plan_generated_at?: string | null;
 
   // Stats

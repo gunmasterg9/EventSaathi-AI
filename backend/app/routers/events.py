@@ -2,6 +2,8 @@ import json
 from datetime import datetime
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -14,6 +16,11 @@ from backend.app.schemas.events import (
     EventListItem,
 )
 from backend.app.services.ai_service import ai_planner
+from backend.app.schemas.budget import BudgetItemResponse
+from backend.app.schemas.tasks import TaskResponse
+from backend.app.schemas.vendors import VendorResponse
+from backend.app.schemas.guests import GuestResponse
+from backend.app.schemas.operations import FeedbackResponse
 
 router = APIRouter(prefix="/api/events", tags=["Events"])
 
@@ -181,6 +188,26 @@ def get_event(event_id: str, db: Session = Depends(get_db)):
         **stats
     )
 
+@router.get("/{event_id}/export-json")
+def export_event(event_id: str, db: Session = Depends(get_db)):
+    """Download a portable snapshot of the plan and all workspace records."""
+    details = get_event(event_id, db)
+    event = db.query(Event).filter(Event.id == event_id).first()
+    snapshot = {
+        "schema_version": 1,
+        "event": details.model_dump(),
+        "budget_items": [BudgetItemResponse.model_validate(item).model_dump() for item in event.budget_items],
+        "tasks": [TaskResponse.model_validate(item).model_dump() for item in event.tasks],
+        "vendors": [VendorResponse.model_validate(item).model_dump() for item in event.vendors],
+        "guests": [GuestResponse.model_validate(item).model_dump() for item in event.guests],
+        "feedback": [FeedbackResponse.model_validate(item).model_dump() for item in event.feedback],
+    }
+    return JSONResponse(
+        content=jsonable_encoder(snapshot),
+        headers={"Content-Disposition": f'attachment; filename="event-{event.id}.json"'},
+    )
+
+
 @router.patch("/{event_id}", response_model=EventResponse)
 def update_event(event_id: str, update_in: EventUpdate, db: Session = Depends(get_db)):
     """
@@ -274,6 +301,8 @@ async def generate_event_plan(event_id: str, db: Session = Depends(get_db)):
         event_date=event.date,
     )
 
+    populate_workspace = event.plan_generated_at is None
+
     # Update event fields with generated plan
     event.event_summary = plan.event_summary
     event.theme_concept = plan.theme
@@ -285,14 +314,11 @@ async def generate_event_plan(event_id: str, db: Session = Depends(get_db)):
     event.plan_generated_at = datetime.utcnow()
     event.updated_at = datetime.utcnow()
 
-    # Clear existing generated items if replacing or populate initial items
-    # (Cascades clean up existing child items)
-    db.query(BudgetItem).filter(BudgetItem.event_id == event.id).delete()
-    db.query(Task).filter(Task.event_id == event.id).delete()
-    db.query(VendorRecord).filter(VendorRecord.event_id == event.id).delete()
+    # Generate workspace records only on the first plan. Regeneration refreshes
+    # ideas and schedules while preserving user edits, payments and bookings.
 
     # Populate budget items from generated plan
-    if plan.budget and plan.budget.items:
+    if populate_workspace and not event.budget_items and plan.budget and plan.budget.items:
         for b_item in plan.budget.items:
             db_b_item = BudgetItem(
                 event_id=event.id,
@@ -306,7 +332,7 @@ async def generate_event_plan(event_id: str, db: Session = Depends(get_db)):
             db.add(db_b_item)
 
     # Populate timeline tasks from generated plan
-    if plan.timeline:
+    if populate_workspace and not event.tasks and plan.timeline:
         for t_item in plan.timeline:
             db_task = Task(
                 event_id=event.id,
@@ -320,7 +346,7 @@ async def generate_event_plan(event_id: str, db: Session = Depends(get_db)):
             db.add(db_task)
 
     # Populate vendor items from generated plan
-    if plan.vendors:
+    if populate_workspace and not event.vendors and plan.vendors:
         for v_item in plan.vendors:
             db_vendor = VendorRecord(
                 event_id=event.id,

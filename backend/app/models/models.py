@@ -66,6 +66,35 @@ class Event(Base):
         cascade="all, delete-orphan",
         order_by="VendorRecord.created_at"
     )
+    guests = relationship("Guest", back_populates="event", cascade="all, delete-orphan", order_by="Guest.created_at")
+    feedback = relationship("EventFeedback", back_populates="event", cascade="all, delete-orphan", order_by="EventFeedback.created_at")
+
+
+class EventFeedback(Base):
+    __tablename__ = "event_feedback"
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    event_id = Column(String(36), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True)
+    author = Column(String(150), nullable=False)
+    rating = Column(Integer, nullable=False)
+    comment = Column(String(2000), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    event = relationship("Event", back_populates="feedback")
+
+class Guest(Base):
+    __tablename__ = "guests"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    event_id = Column(String(36), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True)
+    name = Column(String(200), nullable=False)
+    phone = Column(String(50), nullable=True)
+    party_size = Column(Integer, nullable=False, default=1)
+    rsvp_status = Column(String(20), nullable=False, default="pending")
+    dietary_requirements = Column(String(300), nullable=True)
+    notes = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    event = relationship("Event", back_populates="guests")
+
 
 class BudgetItem(Base):
     __tablename__ = "budget_items"

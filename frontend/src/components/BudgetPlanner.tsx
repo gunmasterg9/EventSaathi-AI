@@ -1,3 +1,4 @@
+import { DialogPanel } from './DialogPanel';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   PlusCircle,
@@ -138,6 +139,12 @@ export const BudgetPlanner: React.FC = () => {
 
   return (
     <div className="space-y-8 animate-in fade-in pb-12">
+      {error && (
+        <div role="alert" className="p-4 rounded-xl bg-rose-50 text-rose-800 border border-rose-200">
+          <p>{error}</p>
+          <button onClick={fetchBudget} className="mt-2 font-bold underline">Try again</button>
+        </div>
+      )}
       {/* Header and Export Controls */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200">
         <div>
@@ -364,8 +371,8 @@ export const BudgetPlanner: React.FC = () => {
 
       {/* Add / Edit Modal Dialog */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-rose-100 space-y-5 animate-in fade-in zoom-in-95">
+        <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
+          <DialogPanel className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-rose-100 animate-in fade-in zoom-in-95" contentClassName="p-6 space-y-5">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
               <h3 className="font-extrabold text-slate-900 text-base">
                 {editingItem ? 'Edit Expense Item' : t.addExpenseBtn}
@@ -481,7 +488,7 @@ export const BudgetPlanner: React.FC = () => {
                 </button>
               </div>
             </form>
-          </div>
+          </DialogPanel>
         </div>
       )}
     </div>
