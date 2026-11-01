@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Literal
 import httpx
@@ -91,6 +92,12 @@ async def chat(request: ChatRequest):
         headers = {"x-goog-api-key": settings.GEMINI_API_KEY}
         async with httpx.AsyncClient(timeout=settings.AI_TIMEOUT_SECONDS) as client:
             result = await client.post(url, json=body, headers=headers)
+            if result.status_code == 429:
+                # Rate limit hit: backoff and retry once
+                await asyncio.sleep(2.0)
+                result = await client.post(url, json=body, headers=headers)
+        if result.status_code == 429:
+            raise HTTPException(429, "Gemini rate limit reached (15 RPM). Please wait a few seconds and try again.")
         if result.status_code != 200:
             raise HTTPException(502, "Unable to get a valid response from the Gemini AI service.")
         payload = result.json()
