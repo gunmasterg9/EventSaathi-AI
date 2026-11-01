@@ -30,7 +30,6 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
   ];
 
   const hasKey = health?.ai_engine.has_credentials;
-  const isOllama = health?.ai_engine.provider === 'ollama';
 
   return (
     <div className="dialog-overlay fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm">
@@ -65,11 +64,11 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose })
               <span>AI Provider Status</span>
             </span>
             <span className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
-              (hasKey || isOllama)
+              hasKey
                 ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                 : 'bg-amber-50 text-amber-700 border-amber-200'
             }`}>
-              {isOllama ? 'Ollama selected (local testing)' : hasKey ? 'Gemini configured' : 'Deterministic Fallback Active'}
+              {hasKey ? 'Gemini configured' : 'Deterministic Fallback Active'}
             </span>
           </div>
 

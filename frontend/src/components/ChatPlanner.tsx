@@ -51,7 +51,7 @@ export function ChatPlanner({ onClose, onReview, onForm }: {
         <div ref={end} />
       </div>
       {error && <p role="alert" className="text-sm text-rose-800 bg-rose-50 rounded-xl p-3">{error}</p>}
-      {result && <p className="text-xs font-semibold text-slate-500">{result.source === 'ollama_ai' ? 'Ollama · Local AI' : 'Gemini AI'} · {result.model}</p>}
+      {result && <p className="text-xs font-semibold text-slate-500">Gemini AI · {result.model}</p>}
       {result?.event_input && <section className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-3">
         <h3 className="font-bold text-emerald-900">{t.draft}</h3>
         <p className="text-sm break-words">{result.event_input.name} · {result.event_input.city} · {result.event_input.guest_count} · INR {result.event_input.total_budget.toLocaleString()}</p>

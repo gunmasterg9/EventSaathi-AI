@@ -9,7 +9,7 @@ beforeEach(() => { localStorage.clear(); vi.clearAllMocks(); });
 
 it('collects a chat draft and requires a separate review action', async () => {
   const input = { name: 'Birthday', event_type: 'birthday' as const, city: 'Ahmedabad', guest_count: 30, total_budget: 20000, language: 'en' as const, currency: 'INR', venue_status: 'not_booked' as const, indoor_outdoor: 'flexible' as const };
-  vi.mocked(api.chat).mockResolvedValue({ reply: 'Review your event details.', source: 'ollama_ai', model: 'local-test', missing_fields: [], event_input: input });
+  vi.mocked(api.chat).mockResolvedValue({ reply: 'Review your event details.', source: 'gemini_ai', model: 'gemini-1.5-flash', missing_fields: [], event_input: input });
   const review = vi.fn();
   render(<LanguageProvider><ChatPlanner onClose={vi.fn()} onForm={vi.fn()} onReview={review} /></LanguageProvider>);
   fireEvent.change(screen.getByLabelText('Your message'), { target: { value: 'Plan my birthday' } });

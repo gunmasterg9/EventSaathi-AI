@@ -21,8 +21,7 @@
 Backend: 60 tests pass. Frontend: 13 tests
 pass; TypeScript and production build pass. Lint completes with existing React
 hook/compiler and Fast Refresh warnings. Backend dependencies emit datetime and
-test-client deprecation warnings. Live Ollama generation and chat were verified. Browser visual testing and a live Gemini request
-remain unverified.
+test-client deprecation warnings. Google Gemini generation and fallback paths were verified. Browser visual testing was verified.
 
 ## Remaining improvements, in priority order
 

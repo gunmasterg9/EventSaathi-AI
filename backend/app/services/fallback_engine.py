@@ -43,13 +43,16 @@ def generate_fallback_plan(
             ("Contingency & Hospitality", 0.05, "Guest coordination, welcome hampers, emergency reserve"),
         ]
     elif event_type.lower() == "birthday":
+        per_head = round((total_budget * 0.45) / max(1, guest_count))
         allocations = [
-            ("Venue & Space Rental", 0.25, f"Party hall or open lawn space for {guest_count} guests"),
-            ("Catering & Birthday Cake", 0.38, "Custom themed cake, welcome snacks, buffet dinner"),
-            ("Themed Decoration & Balloons", 0.16, "Balloon arches, photo booth backdrop, table centerpieces"),
-            ("Photography & Mini Video", 0.08, "Party highlights and guest photo sessions"),
-            ("Games & Entertainment", 0.08, "Anchor/emcee, party games, music playlist, return favors"),
-            ("Party Supplies & Emergency", 0.05, "Cutlery, candles, prop accessories, buffer budget"),
+            ("Vegetarian Dinner Buffet", 0.45, f"Complete celebration feast for {guest_count} guests (approx ₹{per_head} per head)"),
+            ("Birthday Cake & Desserts", 0.075, "Custom themed celebration cake and specialty sweet course"),
+            ("Balloon Decoration & Arch", 0.08, "Themed balloon arch, entrance pillars, and colorful party accents"),
+            ("Backdrop & Stage Setup", 0.07, "Photo booth backdrop, stage garland, and celebration banner"),
+            ("Table Setup & Seating", 0.05, "Centerpieces, seating arrangement, and mood lighting"),
+            ("Music & Sound System", 0.10, "Party sound system, DJ music playlist, and wireless microphones"),
+            ("Photography & Portraits", 0.125, "Candid photography coverage, cake cutting moments, and family portraits"),
+            ("Emergency Contingency Buffer", 0.05, "Operational reserve for unexpected expenses and contingency"),
         ]
     elif event_type.lower() == "community":
         allocations = [
@@ -92,6 +95,14 @@ def generate_fallback_plan(
                 "Photography & Video": "फोटोग्राफी और वीडियोग्राफी",
                 "Entertainment & Music": "मनोरंजन और संगीत (Entertainment)",
                 "Contingency & Hospitality": "आकस्मिक व्यय और अतिथि सत्कार",
+                "Vegetarian Dinner Buffet": "शाकाहारी रात्रिभोज (Dinner Buffet)",
+                "Birthday Cake & Desserts": "बर्थडे केक और मिष्ठान",
+                "Balloon Decoration & Arch": "गुब्बारा सजावट और प्रवेश द्वार",
+                "Backdrop & Stage Setup": "स्टेज और फोटो बैकड्रॉप",
+                "Table Setup & Seating": "टेबल व्यवस्था और लाइटिंग",
+                "Music & Sound System": "संगीत और साउंड सिस्टम",
+                "Photography & Portraits": "फोटोग्राफी और पोर्ट्रेट्स",
+                "Emergency Contingency Buffer": "आपातकालीन आरक्षित निधि (Contingency)",
                 "Venue & Space Rental": "स्थान किराया (Venue)",
                 "Catering & Birthday Cake": "केक और खान-पान",
                 "Themed Decoration & Balloons": "थीम सजावट और गुब्बारे",
@@ -120,6 +131,14 @@ def generate_fallback_plan(
                 "Photography & Video": "ફોટોગ્રાફી અને વિડિયો",
                 "Entertainment & Music": "સંગીત અને મનોરંજન",
                 "Contingency & Hospitality": "અતિથિ સત્કાર અને આકસ્મિક ખર્ચ",
+                "Vegetarian Dinner Buffet": "શાકાહારી ભોજન (Dinner Buffet)",
+                "Birthday Cake & Desserts": "બર્થડે કેક અને મીઠાઈ",
+                "Balloon Decoration & Arch": "ફુગ્ગા ડેકોરેશન અને પ્રવેશદ્વાર",
+                "Backdrop & Stage Setup": "સ્ટેજ અને ફોટો બેકડ્રોપ",
+                "Table Setup & Seating": "ટેબલ વ્યવસ્થા અને લાઇટિંગ",
+                "Music & Sound System": "સંગીત અને સાઉન્ડ સિસ્ટમ",
+                "Photography & Portraits": "ફોટોગ્રાફી અને પોર્ટ્રેટ્સ",
+                "Emergency Contingency Buffer": "આકસ્મિક અનામત રકમ (Contingency)",
                 "Venue & Space Rental": "પાર્ટી હોલ / જગ્યાનું ભાડું",
                 "Catering & Birthday Cake": "કેક અને ભોજન વ્યવસ્થા",
                 "Themed Decoration & Balloons": "થીમ ડેકોરેશન અને ફુગ્ગા",
@@ -255,11 +274,11 @@ def generate_fallback_plan(
             )
         ]
         schedule = [
-            AIPlanScheduleItem(time_slot="04:00 PM - 05:30 PM", activity="वेन्यू सेटअप, साउंड चेक और सजावट का अंतिम निरीक्षण", notes="संयोजक टीम उपस्थित रहे"),
-            AIPlanScheduleItem(time_slot="06:00 PM - 07:00 PM", activity="अतिथियों का आगमन, स्वागत ड्रिंक्स और फोटो सत्र", notes="स्वागत डेस्क पर माला या उपहार"),
-            AIPlanScheduleItem(time_slot="07:00 PM - 08:30 PM", activity="मुख्य उत्सव कार्यक्रम / रस्में / केक कटिंग", notes="पारिवारिक प्रस्तुतियां और संगीत"),
-            AIPlanScheduleItem(time_slot="08:30 PM - 10:00 PM", activity="शाही रात्रिभोज और मेल-मिलाप", notes="कैटरिंग सर्विस सुचारू रहे"),
-            AIPlanScheduleItem(time_slot="10:00 PM - 10:30 PM", activity="धन्यवाद ज्ञापन और विदाई", notes="रिटर्न गिफ्ट्स का वितरण")
+            AIPlanScheduleItem(time_slot="04:00 PM - 04:30 PM", activity="अतिथियों का आगमन, स्वागत ड्रिंक्स और फोटो सत्र", notes="स्वागत डेस्क पर माला या उपहार"),
+            AIPlanScheduleItem(time_slot="04:30 PM - 05:45 PM", activity="बच्चों और अतिथियों के लिए खेल (म्यूजिकल चेयर, ट्रेजर हंट, फ्रीज डांस)", notes="एक्टिविटी एंकर द्वारा संचालन"),
+            AIPlanScheduleItem(time_slot="05:45 PM - 06:30 PM", activity="मुख्य उत्सव, केक कटिंग और पारिवारिक फोटो सेशन", notes="45 मिनट का मुख्य समारोह"),
+            AIPlanScheduleItem(time_slot="06:30 PM - 07:30 PM", activity="शाही शाकाहारी रात्रिभोज और मेल-मिलाप", notes="कैटरिंग सर्विस सुचारू रहे (1 घंटा)"),
+            AIPlanScheduleItem(time_slot="07:30 PM - 07:45 PM", activity="धन्यवाद ज्ञापन और रिटर्न गिफ्ट्स वितरण", notes="विदाई और शुभकामनाएं")
         ]
 
     elif lang == "gu":
@@ -271,7 +290,7 @@ def generate_fallback_plan(
         ideas = [
             f"{city} ની પરંપરાગત મહેમાનગતિ અને ગુજરાતી મીઠાઈ/નાસ્તાનો સમાવેશ કરવો.",
             "પરિવાર અને સ્નેહીજનો માટે સુંદર સેલ્ફી અને ફોટો બૂથ ગોઠવવું.",
-            "ગરબા/લાઈવ સંગીત અથવા રમતો દ્વારા મહેમાનોનું મનોરંજન કરવું.",
+            "બાળકો અને મહેમાનો માટે 3-4 રમતો યોજવી: મ્યુઝિકલ ચેર, ટ્રેઝર હન્ટ, ફ્રીઝ ડાન્સ અને પાસિંગ ધ પાર્સલ.",
             f"આવનાર દરેક મહેમાનને સ્મૃતિ ભેટ (Return Gift) આપીને આભાર માનવો."
         ]
         contingency_list = [
@@ -283,6 +302,7 @@ def generate_fallback_plan(
             f"{city} માં મનગમતા હોલ/વાડી અને કેટરર સાથે વાત કરી એડવાન્સ બુકિંગ કરવું.",
             "મહેમાનોની યાદી નક્કી કરી આમંત્રણ પત્રિકા મોકલવી.",
             "ડેકોરેશન, સાઉન્ડ અને ફોટોગ્રાફર સાથે સમય અને વ્યવસ્થા નક્કી કરવી.",
+            "બાળકોની રમતો માટે સાધન-સામગ્રી (મ્યુઝિકલ ચેર, ફુગ્ગા, ગિફ્ટ્સ) તૈયાર રાખવી.",
             "કાર્યક્રમના ૨ દિવસ પહેલાં દરેક જવાબદારીનું રિવ્યુ કરવું."
         ]
         timeline = [
@@ -362,11 +382,11 @@ def generate_fallback_plan(
             )
         ]
         schedule = [
-            AIPlanScheduleItem(time_slot="04:30 PM - 05:30 PM", activity="સ્થળ તૈયારી, સાઉન્ડ ચેક અને ડેકોરેશન નિરીક્ષણ", notes="મુખ્ય સંચાલકો હાજર રહે"),
-            AIPlanScheduleItem(time_slot="06:00 PM - 07:00 PM", activity="મહેમાનોનું આગમન, આવકાર અને ફોટો સેશન", notes="વેલકમ ડ્રિંક્સ પીરસવા"),
-            AIPlanScheduleItem(time_slot="07:00 PM - 08:30 PM", activity="મુખ્ય ઉત્સવ કાર્યક્રમ, સેલિબ્રેશન અને ગરબા/સંગીત", notes="પરિવારજનોની રજૂઆત"),
-            AIPlanScheduleItem(time_slot="08:30 PM - 10:00 PM", activity="સ્વાદિષ્ટ ભોજન સમારંભ", notes="કેટરિંગ સ્ટાફ ધ્યાન રાખે"),
-            AIPlanScheduleItem(time_slot="10:00 PM - 10:30 PM", activity="આભાર દર્શન અને સ્મૃતિ ભેટ વિતરણ", notes="વિદાય અને શુભેચ્છા")
+            AIPlanScheduleItem(time_slot="04:00 PM - 04:30 PM", activity="મહેમાનોનું આગમન, આવકાર અને ફોટો સેશન", notes="વેલકમ ડ્રિંક્સ પીરસવા"),
+            AIPlanScheduleItem(time_slot="04:30 PM - 05:45 PM", activity="બાળકો અને મહેમાનો માટે રમતો (મ્યુઝિકલ ચેર, ટ્રેઝર હન્ટ, ફ્રીઝ ડાન્સ)", notes="મનોરંજક રમતો અને સ્પર્ધા"),
+            AIPlanScheduleItem(time_slot="05:45 PM - 06:30 PM", activity="મુખ્ય ઉત્સવ કાર્યક્રમ, કેક કટિંગ અને ફોટો સેશન", notes="૪૫ મિનિટનો મુખ્ય સેલિબ્રેશન સમય"),
+            AIPlanScheduleItem(time_slot="06:30 PM - 07:30 PM", activity="સ્વાદિષ્ટ શાકાહારી ભોજન સમારંભ", notes="૧ કલાકનો સ્વાદિષ્ટ જમણવાર"),
+            AIPlanScheduleItem(time_slot="07:30 PM - 07:45 PM", activity="આભાર દર્શન અને સ્મૃતિ ભેટ વિતરણ", notes="વિદાય અને શુભેચ્છાઓ")
         ]
 
     else:
@@ -379,7 +399,7 @@ def generate_fallback_plan(
         ideas = [
             f"Integrate local {city} culinary favorites with interactive live food counters.",
             "Set up an aesthetic themed photo-backdrop with personalized celebratory props.",
-            "Curate a warm welcome experience with signature non-alcoholic mocktails and acoustic music.",
+            "Organize 3 to 4 engaging interactive party games: Musical Chairs, Treasure Hunt, Freeze Dance, and Passing the Parcel.",
             f"Provide custom memory favors or eco-friendly return gifts for all {guest_count} guests."
         ]
         contingency_list = [
@@ -390,7 +410,8 @@ def generate_fallback_plan(
         prep_steps = [
             f"Shortlist and confirm venue in {city} with dedicated parking and required capacity.",
             f"Finalize catering menu accommodating {dietary_requirements or 'all dietary preferences'}.",
-            "Coordinate decor themes, floral arrangements, and stage backdrop lighting.",
+            "Coordinate decor themes, balloon arches, and stage backdrop lighting.",
+            "Organize props and music tracks for party games (Musical Chairs, Treasure Hunt, Freeze Dance).",
             "Run an end-to-end rehearsal and vendor contact check 48 hours prior to the event."
         ]
         timeline = [
@@ -470,11 +491,11 @@ def generate_fallback_plan(
             )
         ]
         schedule = [
-            AIPlanScheduleItem(time_slot="04:00 PM - 05:30 PM", activity="Vendor load-in, decor finishing touches, audio check", notes="Lead coordinator on site"),
-            AIPlanScheduleItem(time_slot="06:00 PM - 07:00 PM", activity="Guest arrivals, welcome drinks & photo session", notes="Background playlist running"),
-            AIPlanScheduleItem(time_slot="07:00 PM - 08:30 PM", activity="Main celebration, ceremonies / speeches, interactive fun", notes="High energy segment"),
-            AIPlanScheduleItem(time_slot="08:30 PM - 10:00 PM", activity="Dinner buffet & guest mingling", notes="Catering replenishment monitored"),
-            AIPlanScheduleItem(time_slot="10:00 PM - 10:30 PM", activity="Wrap-up, thank you gifts & pleasant farewells", notes="Favors distributed at exit")
+            AIPlanScheduleItem(time_slot="04:00 PM - 04:30 PM", activity="Guest arrivals, welcome drinks, and photo session", notes="Welcome team greeting guests at entrance"),
+            AIPlanScheduleItem(time_slot="04:30 PM - 05:45 PM", activity="Interactive games: Musical Chairs, Treasure Hunt, and Freeze Dance", notes="Party anchor / host engaging all guests"),
+            AIPlanScheduleItem(time_slot="05:45 PM - 06:30 PM", activity="Celebration ceremony, birthday cake cutting, and group photos", notes="Dedicated 45-minute celebration segment"),
+            AIPlanScheduleItem(time_slot="06:30 PM - 07:30 PM", activity="Grand vegetarian dinner buffet and guest socializing", notes="Full 1-hour dining experience with active catering staff"),
+            AIPlanScheduleItem(time_slot="07:30 PM - 07:45 PM", activity="Thank-you address and return gifts distribution", notes="Farewells and favors distributed at exit")
         ]
 
     return AIPlanGenerated(

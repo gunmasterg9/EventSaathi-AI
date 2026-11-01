@@ -60,7 +60,7 @@ export const PlanViewer: React.FC = () => {
             ) : (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>{currentEvent.plan_source === 'ollama_ai' ? 'Local AI (Ollama)' : 'AI Powered (Gemini)'}</span>
+                <span>AI Powered (Gemini)</span>
               </span>
             )}
           </div>

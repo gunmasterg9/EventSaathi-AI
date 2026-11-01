@@ -2,7 +2,7 @@ export type Language = 'en' | 'hi' | 'gu';
 export interface ChatMessage { role: 'user' | 'assistant'; content: string }
 export interface ChatResponse {
   reply: string;
-  source: 'ollama_ai' | 'gemini_ai';
+  source: 'gemini_ai';
   model: string;
   missing_fields: string[];
   event_input: EventCreateInput | null;
@@ -67,7 +67,7 @@ export interface EventItem {
   guest_experience_ideas: string[];
   prep_steps: string[];
   event_day_schedule: ScheduleItem[];
-  plan_source: 'none' | 'gemini_ai' | 'ollama_ai' | 'rules_fallback';
+  plan_source: 'none' | 'gemini_ai' | 'rules_fallback';
   plan_generated_at?: string | null;
 
   // Stats

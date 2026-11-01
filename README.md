@@ -93,24 +93,16 @@ cp .env.example .env
 
 ### Windows one-click start / stop
 
-For temporary local AI testing, use **run-ollama.bat**. It restarts this project's
-servers with `AI_PROVIDER=ollama` without changing `.env`. Ollama must already be
-running at `http://127.0.0.1:11434` with the configured model installed; the default
-is `qwen3-coder:30b`. Set `OLLAMA_MODEL` before launching to choose another model.
-The app sends its event brief to Ollama's local `/api/chat` endpoint, requests
-structured JSON, validates it, and labels successful plans **Local AI (Ollama)**.
-If generation fails or exceeds the 180-second default timeout, it falls back and
-labels the plan accordingly. Selecting Ollama in Settings does not prove generation
-succeeded; check the plan badge.
-
-Use `stop.bat`, then `run.bat`, to return to your normal configured provider.
-Ollama itself is managed separately and is not stopped by `stop.bat`.
-
-After installing the dependencies, double-click `run.bat` in the project root.
-It starts the backend and frontend in the background and prints the app address:
-http://127.0.0.1:5173/. Double-click `stop.bat` to stop both servers.
+Double-click `run.bat` in the project root to start the backend and frontend in the
+background. It prints the application URL: http://127.0.0.1:5173/.
+Double-click `stop.bat` to stop both servers.
 Closing the launcher window leaves the servers running. Saved events remain in
 the database when stopped.
+
+The application uses Google Gemini (`gemini-1.5-flash`) for AI-powered celebration
+planning and conversation assistance. Configure your `GEMINI_API_KEY` in `.env`.
+If no API key is supplied or a network timeout occurs, EventSaathi seamlessly
+engages its deterministic offline fallback planner so planning never fails.
 
 The launcher uses `.venv\Scripts\python.exe` and Node.js from PATH. For first-time
 Windows setup, run these commands from the project root:
@@ -205,7 +197,7 @@ Follow-up messages can correct the brief. Choose **Review details & create plan*
 to open the prefilled wizard; review its fields and explicitly submit to save the
 event and generate its plan. Chat itself never writes event records.
 
-Chat uses the selected Ollama/Gemini provider and reports errors if AI is
+Chat uses Google Gemini and reports errors if AI is
 unavailable; it does not disguise rules-based replies as AI. Use **Use event form**
 for the normal fallback-capable workflow. Chat history is held in browser memory
 only and resets when closed. Each conversation accepts up to 10 user turns,

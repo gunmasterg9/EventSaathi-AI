@@ -10,7 +10,7 @@ router = APIRouter(prefix="/api", tags=["Health & Status"])
 def get_health_status(db: Session = Depends(get_db)):
     """
     Health check endpoint returning system status, database connectivity,
-    and AI provider status.
+    and Gemini AI provider status.
     """
     db_status = "connected"
     try:
@@ -27,8 +27,8 @@ def get_health_status(db: Session = Depends(get_db)):
         "database": db_status,
         "ai_engine": {
             "has_credentials": has_ai,
-            "provider": "ollama" if settings.AI_PROVIDER == "ollama" else "google_gemini" if has_ai else "deterministic_rules_engine",
-            "model": settings.OLLAMA_MODEL if settings.AI_PROVIDER == "ollama" else settings.GEMINI_MODEL,
+            "provider": "google_gemini" if has_ai else "deterministic_rules_engine",
+            "model": settings.GEMINI_MODEL,
             "fallback_ready": True
         }
     }

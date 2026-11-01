@@ -53,10 +53,10 @@ export const EventDashboard: React.FC<EventDashboardProps> = ({ onNavigateTab, o
                   <ShieldCheck className="w-3.5 h-3.5 text-amber-300" />
                   <span>{t.fallbackBadge}</span>
                 </span>
-              ) : currentEvent.plan_source === 'gemini_ai' || currentEvent.plan_source === 'ollama_ai' ? (
+              ) : currentEvent.plan_source === 'gemini_ai' ? (
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5 text-emerald-300" />
-                  <span>{currentEvent.plan_source === 'ollama_ai' ? 'Local AI · Ollama' : t.aiBadge}</span>
+                  <span>{t.aiBadge}</span>
                 </span>
               ) : <span className="text-xs text-rose-200">{t.noPlanYet}</span>}
             </div>

@@ -15,14 +15,11 @@ class Settings(BaseSettings):
     # Database
     DATABASE_URL: str = "sqlite:///./eventsaathi.db"
     
-    # AI Provider configuration
-    AI_PROVIDER: Literal["gemini", "ollama"] = "gemini"
-    OLLAMA_BASE_URL: str = "http://127.0.0.1:11434"
-    OLLAMA_MODEL: str = "qwen3-coder:30b"
-    OLLAMA_TIMEOUT_SECONDS: int = 180
+    # AI Provider configuration (Google Gemini)
+    AI_PROVIDER: str = "gemini"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-1.5-flash"
-    AI_TIMEOUT_SECONDS: int = 15
+    GEMINI_MODEL: str = "gemini-3.5-flash"
+    AI_TIMEOUT_SECONDS: int = 25
     AI_MAX_RETRIES: int = 1
     
     # Limits & Security

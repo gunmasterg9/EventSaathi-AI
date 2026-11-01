@@ -54,6 +54,7 @@ backend/*.db
 
 # IDE & OS
 .runtime/
+scratch/
 .vscode/
 .idea/
 *.swp
