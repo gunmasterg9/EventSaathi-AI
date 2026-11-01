@@ -155,7 +155,12 @@ Return a single JSON object with EXACTLY this structure:
 }}
 """
 
-        api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.model}:generateContent?key={self.api_key}"
+        models_to_try = [self.model]
+        if "flash-lite" not in self.model:
+            models_to_try.append("gemini-3.5-flash-lite")
+        elif self.model != "gemini-3.5-flash":
+            models_to_try.append("gemini-3.5-flash")
+
         request_body = {
             "contents": [
                 {
@@ -170,15 +175,21 @@ Return a single JSON object with EXACTLY this structure:
         }
 
         try:
+            response = None
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
-                    api_url,
-                    json=request_body,
-                    headers={"Content-Type": "application/json"}
-                )
+                for model_candidate in models_to_try:
+                    api_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_candidate}:generateContent?key={self.api_key}"
+                    response = await client.post(
+                        api_url,
+                        json=request_body,
+                        headers={"Content-Type": "application/json"}
+                    )
+                    if response.status_code == 200:
+                        break
 
-            if response.status_code != 200:
-                logger.warning(f"Gemini API responded with status {response.status_code}. Using fallback.")
+            if response is None or response.status_code != 200:
+                status_code = response.status_code if response else "No response"
+                logger.warning(f"Gemini API responded with status {status_code}. Using fallback.")
                 return generate_fallback_plan(
                     event_type=event_type,
                     name=name,

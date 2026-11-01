@@ -80,7 +80,12 @@ async def chat(request: ChatRequest):
         + json.dumps(ChatOutput.model_json_schema())
     )
     try:
-        url = f"https://generativelanguage.googleapis.com/v1beta/models/{settings.GEMINI_MODEL}:generateContent"
+        models_to_try = [settings.GEMINI_MODEL]
+        if "flash-lite" not in settings.GEMINI_MODEL:
+            models_to_try.append("gemini-3.5-flash-lite")
+        elif settings.GEMINI_MODEL != "gemini-3.5-flash":
+            models_to_try.append("gemini-3.5-flash")
+
         body = {
             "systemInstruction": {"parts": [{"text": instruction}]},
             "contents": [
@@ -90,15 +95,22 @@ async def chat(request: ChatRequest):
             "generationConfig": {"responseMimeType": "application/json", "temperature": 0.3}
         }
         headers = {"x-goog-api-key": settings.GEMINI_API_KEY}
+        result = None
+        used_model = settings.GEMINI_MODEL
+
         async with httpx.AsyncClient(timeout=settings.AI_TIMEOUT_SECONDS) as client:
-            result = await client.post(url, json=body, headers=headers)
-            if result.status_code == 429:
-                # Rate limit hit: backoff and retry once
-                await asyncio.sleep(2.0)
+            for model_name in models_to_try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent"
                 result = await client.post(url, json=body, headers=headers)
-        if result.status_code == 429:
-            raise HTTPException(429, "Gemini rate limit reached (15 RPM). Please wait a few seconds and try again.")
-        if result.status_code != 200:
+                if result.status_code == 200:
+                    used_model = model_name
+                    break
+                elif result.status_code == 429:
+                    continue
+
+        if result is None or result.status_code != 200:
+            if result and result.status_code == 429:
+                raise HTTPException(429, "Gemini rate limit reached. Please wait a few seconds and try again.")
             raise HTTPException(502, "Unable to get a valid response from the Gemini AI service.")
         payload = result.json()
         candidates = payload.get("candidates", [])
@@ -112,7 +124,7 @@ async def chat(request: ChatRequest):
         return ChatResponse(
             **output.model_dump(),
             source="gemini_ai",
-            model=settings.GEMINI_MODEL,
+            model=used_model,
             missing_fields=missing,
             event_input=event_input
         )

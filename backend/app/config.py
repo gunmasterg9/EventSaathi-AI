@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     # AI Provider configuration (Google Gemini)
     AI_PROVIDER: str = "gemini"
     GEMINI_API_KEY: str = ""
-    GEMINI_MODEL: str = "gemini-3.5-flash"
+    GEMINI_MODEL: str = "gemini-3.5-flash-lite"
     AI_TIMEOUT_SECONDS: int = 25
     AI_MAX_RETRIES: int = 1
     
